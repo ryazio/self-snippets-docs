@@ -26,7 +26,7 @@ const dataProvider = (httpServer) => {
 }
 ```
 
-3. In the app.js or wherever you have express() app initialized, import and call above function:
+3. In the `app.js` or wherever you have express() app initialized, import and call above function:
 ```javascript
 // import function
 const dataProvider = require('../bin/ws-provider');
