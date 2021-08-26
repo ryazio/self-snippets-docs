@@ -1,5 +1,3 @@
-### FrontEnd Snippet
-
 1. Import these scripts in your `index.html` file.
 
 ```html

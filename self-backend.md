@@ -1,5 +1,3 @@
-### Backend Snippet
-
 1. Create a new file ws-provider.js and put the following content in it:
 
 ```javascript
