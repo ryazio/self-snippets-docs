@@ -9,7 +9,7 @@ SELF ID - Platform Onboarding Doc
 5. Select a category that your platform falls into, click next.
 6. Select "Required for Login" molecules by selecting relevant categories and attestors ( might not be applicable for now as there aren't any attestors )
 7. Next step will Ask if you want to generate a new mnemonic or use an existing mnemonic, you can use this mnemonic for now [funded mnemonic here]
-8. it will now register you on the omni layer blockchain. After the transaction you will have to wait for about 15 minutes approximately until your transaction is confirmed on the chain and then finally you will have your DID address.
+8. It will now register you on the Bitcoin Blockchain using the omni layer protocol. After the transaction you will have to wait for about 15 minutes approximately until your transaction is confirmed on the chain and then finally you will have your DID address.
 9. We can start integrating the frontend code as shown in the onboarding process.
 10. Frontend Widget Code 
     ```
