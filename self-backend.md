@@ -10,15 +10,15 @@
     const claimData = { 'general': {name: 'TOM', age: 62 }};
     try {
                         // method imported from SDK
-        const issuedClaim = await ctrl.issueNewClaim({
-            blockchain,
+        const issuedClaim = await issueNewClaim({
+            blockchain, // omni
             requestorDID,
             claimType,
             claimData,
             attestorName,
-            attestorPublicKey: PDB_publicKey,
-            attestorPrivateKey: PDB_privateKey,
-            attestorDID: PDB_attestorDID
+            attestorPublicKey: PUBLIC_KEY,
+            attestorPrivateKey: PRIVATE_KEY,
+            attestorDID: ATTESTOR_DID,
         });
   
     } catch (e) {
