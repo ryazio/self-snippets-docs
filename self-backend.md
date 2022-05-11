@@ -59,28 +59,28 @@
 
     ```
 
-4. Backend : WebSocket Handling 
+    4. Backend : WebSocket Handling 
     ```
     const wsc = require('../wsc.js')
-wss.on('connection', (ws, req) => {
+    wss.on('connection', (ws, req) => {
 
-  var userID = req.url.substr(1);
-  console.log('userID :>> ', userID);
-  wsc[userID] = ws;
-  let randChallenge = Math.random();
-  let newAuth = new Auth({ 'challenge': randChallenge });
-  newAuth.save();
-  
-  //send immediatly a feedback to the incoming connection
-  const json = { 
-    "endpoint": '/user/handle',
-    "challenge": randChallenge,
-    "domain": process.env.DOMAIN || 'http://localhost:3000',
-    "attestorDID": process.env.ATTESTOR_DID,
-    "attestorPublicKeyHex": process.env.PUBLIC_KEY_HEX,
-  };
-  ws.send(JSON.stringify(json));
-});
+      var userID = req.url.substr(1);
+      console.log('userID :>> ', userID);
+      wsc[userID] = ws;
+      let randChallenge = Math.random();
+      let newAuth = new Auth({ 'challenge': randChallenge });
+      newAuth.save();
+
+      //send immediatly a feedback to the incoming connection
+      const json = { 
+        "endpoint": '/user/handle',
+        "challenge": randChallenge,
+        "domain": process.env.DOMAIN || 'http://localhost:3000',
+        "attestorDID": process.env.ATTESTOR_DID,
+        "attestorPublicKeyHex": process.env.PUBLIC_KEY_HEX,
+      };
+      ws.send(JSON.stringify(json));
+    });
 
     ```
     What is wsc.js?
