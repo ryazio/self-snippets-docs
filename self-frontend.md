@@ -1,13 +1,13 @@
 1. Import these scripts in your `index.html` file.
 
 ```html
-<script type="text/javascript" src="<https://davidshimjs.github.io/qrcodejs/qrcode.min.js>"></script>
-<script type="text/javascript" src="btn.js"></script>
+<script type="text/javascript" src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
+<script type="text/javascript" src="https://onboarding.yourself.id/btn.js"></script>
 ```
 
 2. Import `btn.css` file in your `index.html` file.
 ```html
-<link rel="stylesheet" href="btn.css">
+<link rel="stylesheet" href="https://onboarding.yourself.id/btn.css">
 ```
 
 3. Use the script like this to create `login with self` button in your App.
