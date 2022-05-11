@@ -30,13 +30,10 @@ SELF ID - Platform Onboarding Doc
     Issue Attestation / Claim
     ---
     ```
-    import IPFS from 'mdip/lib/client/utils/ipfs';
+    const { issueNewClaim, verifySign } = require("self");
 
-    const ctrl = new IPFS({ url: 'http://18.117.222.252:5001', wsPort: 4003 });
-    const res = await ctrl.connect();
-    console.log('[ipfs] res', res);
     const claimType = 'general';
-    const claimData = { 'general': {name: 'Thomas Jefferson', age: 62 }};
+    const claimData = { 'general': {name: 'TOM', age: 62 }};
     try {
                         // method imported from SDK
         const issuedClaim = await ctrl.issueNewClaim({
@@ -49,9 +46,7 @@ SELF ID - Platform Onboarding Doc
             attestorPrivateKey: PDB_privateKey,
             attestorDID: PDB_attestorDID
         });
-        const enc = await ctrl.encryptContent([{content: issuedClaim, publicKey: requestorPublicKey}]);
-        const CID = await ctrl.sendJSONToIPFS(enc);
-        res.send(CID);
+  
     } catch (e) {
         console.log('e :>> ', e);
     }
@@ -60,16 +55,16 @@ SELF ID - Platform Onboarding Doc
     ---
     ```
     const { challenge, token, requestorDID, userVP, clientId } = req.body;
-    const getPlatformXUser = await Auth.findOne({ requestorDID });
+    const { issueNewClaim, verifySign } = require("self");
 
-    // if VP is sent, means user is registered and trying to login
-    if (userVP) {
-        // verify VP and login Authorization
-        if (verifyVP(userVP)) {
-            authorizeLogin(clientId);
-            res.send('');
-        }
-    }
+    const verifyClaim = verifySign(
+        JSON.stringify(vc),
+        publicKey,
+        proof.jws,
+        blockchain
+    );
+
+    if (verifyClaim) authorizeLogin(clientID);
     ```
     authorizeLogin Method
     --
@@ -93,23 +88,25 @@ SELF ID - Platform Onboarding Doc
 13. Backend : WebSocket Handling 
     ```
     const wsc = require('../wsc.js')
+wss.on('connection', (ws, req) => {
 
-    wss.on('connection', (ws, req) => {
-    var userID = req.url.substr(1);
-    // maintain an in-memory websocket for later use
-    wsc[userID] = ws;
-    let randChallenge = Math.random();
-    // save challenge to db.
-    let newAuth = new Auth({ 'challenge': randChallenge });
-    newAuth.save();
-    //send new session information for QR Code Generation
-    ws.send(JSON.stringify({
+  var userID = req.url.substr(1);
+  console.log('userID :>> ', userID);
+  wsc[userID] = ws;
+  let randChallenge = Math.random();
+  let newAuth = new Auth({ 'challenge': randChallenge });
+  newAuth.save();
+  
+  //send immediatly a feedback to the incoming connection
+  const json = { 
     "endpoint": '/user/handle',
-    "token": "token",
     "challenge": randChallenge,
     "domain": process.env.DOMAIN || 'http://localhost:3000',
-    }));
-    });
+    "attestorDID": process.env.ATTESTOR_DID,
+    "attestorPublicKeyHex": process.env.PUBLIC_KEY_HEX,
+  };
+  ws.send(JSON.stringify(json));
+});
 
     ```
     What is wsc.js?
