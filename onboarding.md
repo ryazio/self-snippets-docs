@@ -14,9 +14,14 @@ SELF ID - Platform Onboarding Doc
 10. We can start integrating the frontend code as shown in the onboarding process.
 11. Frontend Widget Code 
     ```
+    <!-- GOES IN <HEAD> -->
     <script type="text/javascript" src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
     <script type="text/javascript" src="https://some-publically-hosted-SELF-ID-address.com/btn.js"></script>
+    <link rel="stylesheet" href="https://onboarding.yourself.id/btn.css"
+    ```
+    ```
     <script>
+        // goes in <body>
         createBtn("wss://your-backend-endpoint-wss-enabled.com");
     </script>
     ```
