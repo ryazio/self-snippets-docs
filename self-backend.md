@@ -1,8 +1,8 @@
 
  Backend code  ( Node.js )
 =    
-    1. Issue Attestation / Claim
-    ---
+1. Issue Attestation / Claim
+
     ```
     const { issueNewClaim, verifySign } = require("self");
 
@@ -25,8 +25,7 @@
         console.log('e :>> ', e);
     }
     ```
-    2. Verify Claim ( Verify the Verifiable Presentation )
-    ---
+2. Verify Claim ( Verify the Verifiable Presentation )
     ```
     const { challenge, token, requestorDID, userVP, clientId } = req.body;
     const { issueNewClaim, verifySign } = require("self");
@@ -40,8 +39,7 @@
 
     if (verifyClaim) authorizeLogin(clientID);
     ```
-    3. authorizeLogin Method
-    --
+3. authorizeLogin Method
     ```
     const authorizeLogin = (clientId) => {
     // if client is available, generate a new AccessToken for the
@@ -59,7 +57,7 @@
 
     ```
 
-    4. Backend : WebSocket Handling 
+4. Backend : WebSocket Handling 
     ```
     const wsc = require('../wsc.js')
     wss.on('connection', (ws, req) => {
