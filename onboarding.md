@@ -13,80 +13,113 @@ SELF ID - Platform Onboarding Doc
 9. After the transaction you will have to wait for about 15 minutes approximately until your transaction is confirmed on the chain and then finally you will have your DID address, which you should be able to see in settings.
 10. We can start integrating the frontend code as shown in the onboarding process.
 11. Frontend Widget Code 
-    ```
+    ```html
     <!-- GOES IN <HEAD> -->
     <script type="text/javascript" src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
     <script type="text/javascript" src="https://some-publically-hosted-SELF-ID-address.com/btn.js"></script>
     <link rel="stylesheet" href="https://onboarding.yourself.id/btn.css"
     ```
-    ```
+    ```html
     <script>
         // goes in <body>
         createBtn("wss://your-backend-endpoint-wss-enabled.com");
     </script>
     ```
+12. install SDK in your node.js backend
+    ```bash
+    npm i git+https://git@gitlab.com:self-id/self-platform-sdk.git#attestor-sdk
+    ```
+13. needed imports
+    ```js
+    const { verifyVPGetData } = require('self/lib/attestations/flow');
+    const { offloadGranularClaims } = require('self/lib/attestations/offload');
+    const {
+    fetchAndCheckRequiredForLoginVPData,
+    } = require('self/lib/attestations/cid');
+    const { IPNSHelper } = require('self/lib/ipns/helper');
+    ```
+14. Initialize IPFS Helper
+    ```js
+    const helper = new IPNSHelper();
+    helper.initializeIPNS(CONFIG.ipfsNode, CONFIG.ipfsPort);
+    ```
 11. Backend code  ( Node.js )
     
     Issue Attestation / Claim
     ---
-    ```
-    const { issueNewClaim, verifySign } = require("self");
+    ```js
+    const claimData = {
+        'name': 'Thomas Edison',
+        'drivers_license': 'RC45SDADY'
+    };
+    const { clientId, publicKey, requestorDID } = req.body;
+    const keys = Object.keys(claimData);
+    if (keys.length) {
+        
+        /*  this method takes all the that attestor wants to send to a SELF user, and makes it cryptographically secure, encrypted and puts it on IPFS, and makes sure the SELF user gets the data. */
 
-    const claimType = 'general';
-    const claimData = { 'general': {name: 'TOM', age: 62 }};
-    try {
-                        // method imported from SDK
-        const issuedClaim = await issueNewClaim({
-            blockchain, // omni
-            requestorDID,
-            claimType,
+        const response = await offloadGranularClaims(
+            { publicKey, requestorDID },
             claimData,
-            attestorName,
-            attestorPublicKey: PUBLIC_KEY,
-            attestorPrivateKey: PRIVATE_KEY,
-            attestorDID: ATTESTOR_DID,
-        });
-  
-    } catch (e) {
-        console.log('e :>> ', e);
+            helper, // ipfs helper
+            true,
+        ); // should be true
     }
-    ```
-    Verify Claim ( Verify the Verifiable Presentation )
-    ---
-    ```
-    const { challenge, token, requestorDID, userVP, clientId } = req.body;
-    const { issueNewClaim, verifySign } = require("self");
+    // to reflect the login on frontend with needed data
+    authorizeLogin(clientId, atoms, claimData); 
 
-    const verifyClaim = verifySign(
-        JSON.stringify(vc),
-        publicKey,
-        proof.jws,
-        blockchain
-    );
+    ```
+    Decrypt and Verifying Claim Integrity (Verify the Verifiable Presentation)
+    ---
+    ```js
+    const { userVP, clientId, requestorDID } = req.body;
+    const response = await verifyVPGetData(userVP, helper);
 
     if (verifyClaim) authorizeLogin(clientID);
     ```
+    Checking if required data is present
+    --
+    ```js
+    const reqforLoginPass = success
+        ? await fetchAndCheckRequiredForLoginVPData(response.data)
+        : false;
+    if (!reqforLoginPass) {
+        res.send({
+        success: false,
+        data: null,
+        error: 'Required for login molecules absent',
+        });
+        return;
+    }else {
+        authorizeLogin(clientId);
+        console.log("Authorize the web UI and pass any token that's needed")
+    }
+    ```
+
     authorizeLogin Method
     --
-    ```
-    const authorizeLogin = (clientId) => {
+    ```js
+    const authorizeLogin = (clientId, atoms = {}, claimData = {}) => {
     // if client is available, generate a new AccessToken for the
     // client and send needed information to frontend via WebSocket
-        wsc[clientId] ?
-        wsc[clientId]
-            .send(JSON.stringify(
-                { 
-                    'success': true, 
-                    'token': 'xyz' 
-                }
-            )) :
-        console.log("ClientId not found", clientId);
+    if (wsc[clientId]) {
+        wsc[clientId].send(
+            JSON.stringify({
+                success: true,
+                token: 'af6s8df67sd6fa8fsasdgh78687a',
+                sharedData: atoms,
+                claimData,
+            }),
+        );
+    } else {
+        debug('ClientId not found in hash table', clientId);
     }
+    };
 
     ```
 
 13. Backend : WebSocket Handling 
-    ```
+    ```js
     const wsc = require('../wsc.js')
     wss.on('connection', (ws, req) => {
 
@@ -112,6 +145,6 @@ SELF ID - Platform Onboarding Doc
     What is wsc.js?
     ---
     wsc.js is a helpfer file for storing the Active Web Socket connections as it is in an in-memory object. This cannot persist, meaning; once the node.js server is restarted there are no active web sockets.
-    ```
+    ```js
     module.exports = {};
     ```
